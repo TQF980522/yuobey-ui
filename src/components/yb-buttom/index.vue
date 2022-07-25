@@ -2,15 +2,15 @@
 export default { name: "ybButtom" };
 </script>
 <script setup>
-import { defineEmits, defineProps } from "vue";
+import { computed, defineEmits, defineProps } from "vue";
 /**
  * @props type:类型，默认primary 可选['info','success','warning','danger','text']
  * @props size:大小 默认 defalut 可选['mini','small','max']
  * @props loading 加载状态：默认 false 可选 true or false
  * @props disabled 禁用状态：默认 false 可选 true or false
- * @props radius 按钮圆角 默认0px 可自定义
+ * @props round 按钮圆角 默认0px 可自定义
  */
-defineProps({
+const props = defineProps({
   type: {
     type: String,
     default: "default",
@@ -33,13 +33,32 @@ defineProps({
     type: Boolean,
     default: false,
   },
-
   round: {
     type: Boolean,
     default: false,
   },
+  loader: {
+    type: String,
+    default: "load3",
+  },
 });
+// watch(
+//   () => props.loading,
+//   function (val) {
+//     // if (val) {}
+//   },
+//   { deep: true, immediate: true }
+// );
+let buttonDisabled = computed({
+  get() {
+    if (props.disabled) return props.disabled;
+    return props.loading;
+  },
+  set() {},
+});
+
 const onClick = (event) => {
+  alert(1);
   emit("click", event);
 };
 // 声明事件
@@ -54,10 +73,16 @@ const emit = defineEmits(["click"]);
       'yb-button--' + size,
       {
         'yb-button--round': round,
+        'yb-buttom--loading': loading,
+        'yb-buttom--disable': disabled,
       },
     ]"
+    :disabled="buttonDisabled"
     @click="onClick"
   >
+    <div v-if="loading" :class="['loading-container', loader]">
+      <div class="loader"></div>
+    </div>
     <slot></slot>
   </button>
 </template>
@@ -85,7 +110,6 @@ const emit = defineEmits(["click"]);
   font-size: 14px;
   border-radius: 4px;
 }
-
 /*颜色*/
 .yb-button--default {
 }
@@ -142,5 +166,67 @@ const emit = defineEmits(["click"]);
 /*是否圆角*/
 .yb-button--round {
   border-radius: 20px;
+}
+/*正在加载*/
+.yb-buttom--loading {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+}
+.yb-buttom--disable {
+  cursor: not-allowed !important;
+}
+.yb-button .loading-container {
+  width: 16px;
+  height: 16px;
+  float: left;
+  margin-right: 10px;
+}
+.load3 .loader {
+  font-size: 10px;
+  text-indent: -9999em;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #ffffff;
+  background: -moz-linear-gradient(left, #fff 10%, rgba(255, 255, 255, 0) 42%);
+  position: relative;
+  -webkit-animation: load3 1.4s infinite linear;
+  animation: load3 1.4s infinite linear;
+  -webkit-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+}
+.load3 .loader:before {
+  width: 60%;
+  height: 60%;
+  background: #666;
+  border-radius: 100% 0 0 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  content: "";
+}
+.load3 .loader:after {
+  background: #fff;
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  content: "";
+  margin: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+@keyframes load3 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
 }
 </style>
